@@ -1,7 +1,8 @@
 // ==========================================
 // LISTE DES PAYS ET UNIVERSITES
 // ==========================================
-
+const GOOGLE_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbxq5e1Bc1agSup5Ol0Uh2qF7Wa9YyFRWDY1Ts0NCSV0Cc8tm72bVUTsOLze0zZEsCaI/exec";
 const universitesParPays = {
 
     "Burundi": [
@@ -134,8 +135,6 @@ const universiteSelect = document.getElementById("universite");
 const formulaire = document.getElementById("candidatureForm");
 const message = document.getElementById("message");
 
-const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbyble4hmbY8TH97EuNJcqGlMWpYF_CQupu-SoGGSNe_61oTp4ifvAOwRVjiG0JILyQ/exec";
 // ==========================================
 // AJOUT AUTOMATIQUE DES PAYS
 // ==========================================
