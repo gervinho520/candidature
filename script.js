@@ -134,7 +134,8 @@ const universiteSelect = document.getElementById("universite");
 const formulaire = document.getElementById("candidatureForm");
 const message = document.getElementById("message");
 
-
+const GOOGLE_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbyble4hmbY8TH97EuNJcqGlMWpYF_CQupu-SoGGSNe_61oTp4ifvAOwRVjiG0JILyQ/exec";
 // ==========================================
 // AJOUT AUTOMATIQUE DES PAYS
 // ==========================================
