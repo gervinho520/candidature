@@ -213,67 +213,76 @@ paysSelect.addEventListener("change", function () {
 // ENVOI DU FORMULAIRE
 // ==========================================
 
-formulaire.addEventListener("submit", function (event) {
+formulaire.addEventListener("submit", async function(event) {
 
-    // Empêcher le rechargement de la page
     event.preventDefault();
 
-
-    // Récupérer les valeurs
     const nom = document.getElementById("nom").value.trim();
     const prenom = document.getElementById("prenom").value.trim();
     const pays = paysSelect.value;
     const universite = universiteSelect.value;
 
-
-    // Vérification
     if (
         nom === "" ||
         prenom === "" ||
         pays === "" ||
         universite === ""
     ) {
-
         alert("Veuillez remplir tous les champs.");
-
         return;
     }
 
+    const donnees = new URLSearchParams();
 
-    // Afficher le message
-    message.textContent =
-        "Candidature envoyée avec succès ! " +
-        prenom + " " + nom +
-        ", votre candidature pour " +
-        universite +
-        " (" + pays + ") a été enregistrée.";
+    donnees.append("nom", nom);
+    donnees.append("prenom", prenom);
+    donnees.append("pays", pays);
+    donnees.append("universite", universite);
 
-    message.classList.add("success");
+    const bouton = formulaire.querySelector("button");
 
+    bouton.disabled = true;
+    bouton.textContent = "Envoi en cours...";
 
-    // Réinitialiser le formulaire
-    formulaire.reset();
+    try {
 
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: donnees
+        });
 
-    // Désactiver à nouveau université
-    universiteSelect.disabled = true;
+        message.textContent =
+            "✅ Votre candidature a été envoyée avec succès !";
 
-    universiteSelect.innerHTML = "";
+        message.classList.add("success");
 
-    const option = document.createElement("option");
+        formulaire.reset();
 
-    option.value = "";
-    option.textContent = "-- Sélectionnez d'abord un pays --";
+        universiteSelect.disabled = true;
 
-    universiteSelect.appendChild(option);
+        universiteSelect.innerHTML = "";
 
+        const option = document.createElement("option");
 
-    // Faire disparaître le message après 5 secondes
-    setTimeout(function () {
+        option.value = "";
+        option.textContent =
+            "Sélectionnez d'abord un pays";
 
-        message.classList.remove("success");
-        message.textContent = "";
+        universiteSelect.appendChild(option);
 
-    }, 5000);
+    } catch (erreur) {
+
+        console.error(erreur);
+
+        message.textContent =
+            "❌ Une erreur est survenue lors de l'envoi.";
+
+        message.classList.add("success");
+
+    } finally {
+
+        bouton.disabled = false;
+        bouton.textContent = "Envoyer la candidature";
+    }
 
 });
