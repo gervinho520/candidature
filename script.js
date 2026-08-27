@@ -2,7 +2,7 @@
 // LISTE DES PAYS ET UNIVERSITES
 // ==========================================
 const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbxq5e1Bc1agSup5Ol0Uh2qF7Wa9YyFRWDY1Ts0NCSV0Cc8tm72bVUTsOLze0zZEsCaI/exec";
+    "https://script.google.com/macros/s/AKfycbzSAZABYdS7yBWdNc1KJir7ZOIroQVIIYUg9vsUUEtUNbV_F3lmvjfUxM4UfLpZUf30/exec";
 const universitesParPays = {
 
     "Burundi": [
