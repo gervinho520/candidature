@@ -1,9 +1,12 @@
+```html
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulaire de candidature</title>
+
+    <title>Candidature universitaire</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,64 +15,167 @@
 
     <div class="container">
 
+        <!-- ==============================
+             EN-TÊTE
+        =============================== -->
+
         <div class="header">
+
+            <div class="logo">
+                🎓
+            </div>
+
             <h1>Formulaire de candidature</h1>
-            <p>Inscription universitaire en ligne</p>
+
+            <p>
+                Plateforme de candidature universitaire en ligne
+            </p>
+
         </div>
+
+
+        <!-- ==============================
+             FORMULAIRE
+        =============================== -->
 
         <form id="candidatureForm">
 
+            <!-- NOM -->
+
             <div class="form-group">
-                <label for="nom">Nom <span>*</span></label>
+
+                <label for="nom">
+                    Nom <span>*</span>
+                </label>
+
                 <input
                     type="text"
                     id="nom"
                     name="nom"
                     placeholder="Entrez votre nom"
                     required
+                    autocomplete="family-name"
                 >
+
             </div>
 
+
+            <!-- PRÉNOM -->
+
             <div class="form-group">
-                <label for="prenom">Prénom <span>*</span></label>
+
+                <label for="prenom">
+                    Prénom <span>*</span>
+                </label>
+
                 <input
                     type="text"
                     id="prenom"
                     name="prenom"
                     placeholder="Entrez votre prénom"
                     required
+                    autocomplete="given-name"
                 >
+
             </div>
+
+
+            <!-- PAYS -->
 
             <div class="form-group">
-                <label for="pays">Pays <span>*</span></label>
-                <select id="pays" name="pays" required>
-                    <option value="">Sélectionnez un pays </option>
+
+                <label for="pays">
+                    Pays <span>*</span>
+                </label>
+
+                <select
+                    id="pays"
+                    name="pays"
+                    required
+                >
+
+                    <option value="">
+                        Chargement des pays...
+                    </option>
+
                 </select>
+
+                <small>
+                    Sélectionnez le pays où vous souhaitez étudier.
+                </small>
+
             </div>
+
+
+            <!-- UNIVERSITÉ -->
 
             <div class="form-group">
-                <label for="universite">Université <span>*</span></label>
-                <select id="universite" name="universite" required disabled>
-                    <option value="">Sélectionnez d'abord un pays </option>
+
+                <label for="universite">
+                    Université <span>*</span>
+                </label>
+
+                <select
+                    id="universite"
+                    name="universite"
+                    required
+                    disabled
+                >
+
+                    <option value="">
+                        Sélectionnez d'abord un pays
+                    </option>
+
                 </select>
+
+                <small>
+                    Les universités correspondent au pays sélectionné.
+                </small>
+
             </div>
 
-            <button type="submit" class="btn">
+
+            <!-- BOUTON -->
+
+            <button
+                type="submit"
+                id="btnEnvoyer"
+                class="btn"
+            >
                 Envoyer la candidature
             </button>
 
         </form>
 
-        <div id="message" class="message"></div>
+
+        <!-- ==============================
+             MESSAGE
+        =============================== -->
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+        <!-- ==============================
+             PIED DE PAGE
+        =============================== -->
 
         <div class="footer">
-            <p>© 2026 - Plateforme de candidature universitaire</p>
+
+            <p>
+                © 2026 - Plateforme de candidature universitaire
+            </p>
+
         </div>
 
     </div>
 
+
     <script src="script.js"></script>
 
 </body>
+
 </html>
+```
