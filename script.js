@@ -9,7 +9,7 @@ const GOOGLE_SCRIPT_URL =
 
 // API pour récupérer les pays
 const API_PAYS =
-    "https://countriesnow.space/api/v0.1/countries";
+    "https://raw.githubusercontent.com/Hipo/university-domains-list/master/world universities and domains.json"; //"https://countriesnow.space/api/v0.1/countries";
 
 // API pour rechercher les universités
 const API_UNIVERSITES =
