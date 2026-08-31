@@ -1,6 +1,7 @@
-/* =========================
-   STYLE GENERAL
-========================= */
+
+/* =====================================================
+   CONFIGURATION GENERALE
+===================================================== */
 
 * {
     margin: 0;
@@ -8,134 +9,231 @@
     box-sizing: border-box;
 }
 
+
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(135deg, #e8f1ff, #f5f7fa);
+
     min-height: 100vh;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    padding: 30px;
+    padding: 30px 15px;
+
+    background: linear-gradient(
+        135deg,
+        #e8f0ff,
+        #f5f7fb
+    );
+
+    color: #222;
 }
 
-/* =========================
-   CONTENEUR
-========================= */
+
+/* =====================================================
+   CONTENEUR PRINCIPAL
+===================================================== */
 
 .container {
+
     width: 100%;
     max-width: 600px;
 
-    background-color: white;
+    background: #ffffff;
 
     border-radius: 15px;
 
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.12);
 
     overflow: hidden;
 }
 
-/* =========================
+
+/* =====================================================
    HEADER
-========================= */
+===================================================== */
 
 .header {
-    background: #1769aa;
-    color: white;
 
     text-align: center;
 
-    padding: 30px 20px;
+    padding: 35px 25px;
+
+    background: linear-gradient(
+        135deg,
+        #1769aa,
+        #0d47a1
+    );
+
+    color: white;
 }
+
+
+.logo {
+
+    width: 70px;
+    height: 70px;
+
+    margin: 0 auto 15px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: white;
+
+    border-radius: 50%;
+
+    font-size: 35px;
+}
+
 
 .header h1 {
-    font-size: 28px;
-    margin-bottom: 8px;
+
+    font-size: 27px;
+
+    margin-bottom: 10px;
+
 }
+
 
 .header p {
+
     font-size: 15px;
+
     opacity: 0.9;
+
 }
 
-/* =========================
+
+/* =====================================================
    FORMULAIRE
-========================= */
+===================================================== */
 
 form {
+
     padding: 30px;
 }
 
+
 .form-group {
+
     margin-bottom: 22px;
+
 }
 
-.form-group label {
-    display: block;
 
-    font-weight: bold;
+.form-group label {
+
+    display: block;
 
     margin-bottom: 8px;
 
+    font-weight: bold;
+
     color: #333;
+
 }
+
 
 .form-group label span {
-    color: red;
+
+    color: #e53935;
+
 }
 
-/* =========================
-   INPUT ET SELECT
-========================= */
+
+/* =====================================================
+   INPUTS ET SELECT
+===================================================== */
 
 input,
 select {
+
     width: 100%;
 
-    padding: 13px 15px;
+    padding: 13px 14px;
 
-    border: 1px solid #ccc;
+    border: 1px solid #ccd3dd;
 
     border-radius: 8px;
+
+    background: white;
 
     font-size: 15px;
 
     outline: none;
 
     transition: 0.3s;
+
 }
+
 
 input:focus,
 select:focus {
+
     border-color: #1769aa;
 
-    box-shadow: 0 0 5px rgba(23, 105, 170, 0.25);
+    box-shadow:
+        0 0 0 3px rgba(23, 105, 170, 0.12);
+
 }
+
 
 select:disabled {
-    background-color: #eeeeee;
+
+    background: #f1f3f5;
 
     cursor: not-allowed;
+
+    color: #777;
+
 }
 
-/* =========================
+
+input::placeholder {
+
+    color: #999;
+
+}
+
+
+/* =====================================================
+   PETIT TEXTE
+===================================================== */
+
+small {
+
+    display: block;
+
+    margin-top: 6px;
+
+    color: #777;
+
+    font-size: 12px;
+
+}
+
+
+/* =====================================================
    BOUTON
-========================= */
+===================================================== */
 
 .btn {
+
     width: 100%;
-
-    padding: 14px;
-
-    background-color: #1769aa;
-
-    color: white;
 
     border: none;
 
     border-radius: 8px;
+
+    padding: 14px;
+
+    background: #1769aa;
+
+    color: white;
 
     font-size: 16px;
 
@@ -144,78 +242,145 @@ select:disabled {
     cursor: pointer;
 
     transition: 0.3s;
+
 }
+
 
 .btn:hover {
-    background-color: #0d4f82;
 
-    transform: translateY(-2px);
+    background: #0d47a1;
+
+    transform: translateY(-1px);
+
 }
 
-/* =========================
-   MESSAGE
-========================= */
+
+.btn:disabled {
+
+    background: #9e9e9e;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+}
+
+
+/* =====================================================
+   MESSAGES
+===================================================== */
 
 .message {
-    display: none;
 
     margin: 0 30px 20px;
 
-    padding: 15px;
+    padding: 13px;
 
     border-radius: 8px;
 
     text-align: center;
 
-    font-weight: bold;
+    font-size: 14px;
+
+    display: none;
+
 }
+
 
 .message.success {
+
     display: block;
 
-    background-color: #d4edda;
+    background: #e8f5e9;
 
-    color: #155724;
+    color: #2e7d32;
 
-    border: 1px solid #c3e6cb;
+    border: 1px solid #a5d6a7;
+
 }
 
-/* =========================
+
+.message.error {
+
+    display: block;
+
+    background: #ffebee;
+
+    color: #c62828;
+
+    border: 1px solid #ef9a9a;
+
+}
+
+
+/* =====================================================
    FOOTER
-========================= */
+===================================================== */
 
 .footer {
+
     text-align: center;
 
     padding: 18px;
 
-    background-color: #f5f5f5;
+    border-top: 1px solid #eeeeee;
 
     color: #777;
 
     font-size: 13px;
+
 }
 
-/* =========================
+
+/* =====================================================
    RESPONSIVE
-========================= */
+===================================================== */
 
 @media (max-width: 600px) {
 
     body {
+
         padding: 15px;
+
+        align-items: flex-start;
+
     }
+
+
+    .container {
+
+        margin-top: 10px;
+
+    }
+
+
+    .header {
+
+        padding: 28px 18px;
+
+    }
+
 
     .header h1 {
+
         font-size: 23px;
+
     }
+
 
     form {
-        padding: 20px;
+
+        padding: 22px;
+
     }
 
+
     .message {
-        margin-left: 20px;
-        margin-right: 20px;
+
+        margin-left: 22px;
+
+        margin-right: 22px;
+
     }
+
 }
