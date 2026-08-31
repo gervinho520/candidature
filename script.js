@@ -3,132 +3,22 @@
 // ==========================================
 const GOOGLE_SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbyhlj_Qy3BGT2JmudzyzJsZiWpYKVi8FTS5yksOGnJhgsiq7PH4CbKetB4_Jl5q-mQs/exec";
-const universitesParPays = {
+// =====================================================
+// CONFIGURATION DES API
+// =====================================================
 
-    "Burundi": [
-        "Université du Burundi",
-        "Université du Lac Tanganyika",
-        "Université Lumière de Bujumbura",
-        "Université Espoir d'Afrique",
-        "Université Martin Luther King",
-        "Université du Grand Lac",
-        "Université Sagesse d'Afrique"
-    ],
+// API pour récupérer les pays
+const API_PAYS =
+    "https://restcountries.com/v3.1/all?fields=name,cca2";
 
-    "Rwanda": [
-        "University of Rwanda",
-        "Kigali Independent University",
-        "University of Kigali",
-        "Adventist University of Central Africa",
-        "Rwanda Polytechnic",
-        "Mount Kigali University"
-    ],
-
-    "République démocratique du Congo": [
-        "Université de Kinshasa",
-        "Université de Lubumbashi",
-        "Université de Kisangani",
-        "Université Catholique du Congo",
-        "Université Protestante au Congo",
-        "Université de Goma"
-    ],
-
-    "Tanzanie": [
-        "University of Dar es Salaam",
-        "Sokoine University of Agriculture",
-        "Ardhi University",
-        "Open University of Tanzania",
-        "Mzumbe University"
-    ],
-
-    "Kenya": [
-        "University of Nairobi",
-        "Kenyatta University",
-        "Moi University",
-        "Strathmore University",
-        "Jomo Kenyatta University of Agriculture and Technology"
-    ],
-
-    "Ouganda": [
-        "Makerere University",
-        "Kyambogo University",
-        "Mbarara University of Science and Technology",
-        "Uganda Christian University",
-        "Gulu University"
-    ],
-
-    "France": [
-        "Sorbonne Université",
-        "Université Paris Cité",
-        "Université Paris-Saclay",
-        "Université de Strasbourg",
-        "Université de Bordeaux",
-        "Université de Lille"
-    ],
-
-    "Belgique": [
-        "Université libre de Bruxelles",
-        "Université catholique de Louvain",
-        "Université de Liège",
-        "Université de Namur",
-        "Université de Mons"
-    ],
-
-    "Canada": [
-        "Université de Montréal",
-        "Université Laval",
-        "Université de Sherbrooke",
-        "Université d'Ottawa",
-        "Université du Québec à Montréal"
-    ],
-
-    "États-Unis": [
-        "Harvard University",
-        "Stanford University",
-        "Massachusetts Institute of Technology",
-        "Yale University",
-        "Princeton University",
-        "Columbia University"
-    ],
-
-    "Allemagne": [
-        "Technical University of Munich",
-        "Heidelberg University",
-        "Humboldt University of Berlin",
-        "Free University of Berlin",
-        "University of Hamburg"
-    ],
-
-    "Suisse": [
-        "University of Zurich",
-        "University of Geneva",
-        "University of Lausanne",
-        "ETH Zurich",
-        "EPFL"
-    ],
-
-    "Royaume-Uni": [
-        "University of Oxford",
-        "University of Cambridge",
-        "Imperial College London",
-        "University College London",
-        "University of Edinburgh"
-    ],
-
-    "Afrique du Sud": [
-        "University of Cape Town",
-        "University of Johannesburg",
-        "University of Pretoria",
-        "Stellenbosch University",
-        "University of South Africa"
-    ]
-
-};
+// API pour rechercher les universités
+const API_UNIVERSITES =
+    "https://universities.hipolabs.com/search?country=";
 
 
-// ==========================================
+// =====================================================
 // RECUPERATION DES ELEMENTS HTML
-// ==========================================
+// =====================================================
 
 const paysSelect = document.getElementById("pays");
 const universiteSelect = document.getElementById("universite");
@@ -136,153 +26,290 @@ const formulaire = document.getElementById("candidatureForm");
 const message = document.getElementById("message");
 
 
-// ==========================================
-// AJOUT AUTOMATIQUE DES PAYS
-// ==========================================
+// =====================================================
+// CHARGER LES PAYS AUTOMATIQUEMENT
+// =====================================================
 
-for (const pays in universitesParPays) {
-
-    const option = document.createElement("option");
-
-    option.value = pays;
-    option.textContent = pays;
-
-    paysSelect.appendChild(option);
-}
-
-
-// ==========================================
-// CHANGEMENT DU PAYS
-// ==========================================
-
-paysSelect.addEventListener("change", function () {
-
-    const paysSelectionne = this.value;
-
-    // Supprimer les anciennes universités
-    universiteSelect.innerHTML = "";
-
-    // Aucun pays sélectionné
-    if (paysSelectionne === "") {
-
-        universiteSelect.disabled = true;
-
-        const option = document.createElement("option");
-
-        option.value = "";
-        option.textContent = "-- Sélectionnez d'abord un pays --";
-
-        universiteSelect.appendChild(option);
-
-        return;
-    }
-
-
-    // Activer la liste des universités
-    universiteSelect.disabled = false;
-
-
-    // Option par défaut
-    const optionDefaut = document.createElement("option");
-
-    optionDefaut.value = "";
-    optionDefaut.textContent = "-- Sélectionnez une université --";
-
-    universiteSelect.appendChild(optionDefaut);
-
-
-    // Récupérer les universités du pays
-    const universites = universitesParPays[paysSelectionne];
-
-
-    // Ajouter chaque université
-    universites.forEach(function (universite) {
-
-        const option = document.createElement("option");
-
-        option.value = universite;
-        option.textContent = universite;
-
-        universiteSelect.appendChild(option);
-
-    });
-
-});
-
-
-// ==========================================
-// ENVOI DU FORMULAIRE
-// ==========================================
-
-formulaire.addEventListener("submit", async function(event) {
-
-    event.preventDefault();
-
-    const nom = document.getElementById("nom").value.trim();
-    const prenom = document.getElementById("prenom").value.trim();
-    const pays = document.getElementById("pays").value;
-    const universite = document.getElementById("universite").value;
-
-    if (!nom || !prenom || !pays || !universite) {
-        alert("Veuillez remplir tous les champs.");
-        return;
-    }
-
-    const bouton = formulaire.querySelector("button");
-
-    bouton.disabled = true;
-    bouton.textContent = "Envoi en cours...";
-
-    const donnees = new URLSearchParams();
-
-    donnees.append("nom", nom);
-    donnees.append("prenom", prenom);
-    donnees.append("pays", pays);
-    donnees.append("universite", universite);
+async function chargerPays() {
 
     try {
 
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            body: donnees
+        // Afficher un message pendant le chargement
+        paysSelect.innerHTML =
+            '<option value="">Chargement des pays...</option>';
+
+        paysSelect.disabled = true;
+
+        // Appel de l'API
+        const response = await fetch(API_PAYS);
+
+        // Vérifier la réponse
+        if (!response.ok) {
+            throw new Error("Impossible de récupérer les pays.");
+        }
+
+        // Transformer la réponse en JSON
+        const pays = await response.json();
+
+        // Trier les pays par ordre alphabétique
+        pays.sort(function(a, b) {
+
+            return a.name.common.localeCompare(
+                b.name.common,
+                "fr"
+            );
+
         });
 
-        const resultat = await response.text();
+        // Vider la liste
+        paysSelect.innerHTML =
+            '<option value="">-- Sélectionnez un pays --</option>';
 
-        console.log("Réponse Google :", resultat);
+        // Ajouter les pays
+        pays.forEach(function(pays) {
 
-        if (resultat.includes("OK")) {
+            const option = document.createElement("option");
 
-            message.textContent =
-                "✅ Candidature enregistrée avec succès !";
+            // Nom affiché
+            option.textContent = pays.name.common;
 
-            message.classList.add("success");
+            // Valeur envoyée à l'API universités
+            option.value = pays.name.common;
 
-            formulaire.reset();
+            paysSelect.appendChild(option);
+
+        });
+
+        // Réactiver la liste
+        paysSelect.disabled = false;
+
+    } catch (error) {
+
+        console.error(error);
+
+        paysSelect.innerHTML =
+            '<option value="">Erreur de chargement des pays</option>';
+
+        alert(
+            "Impossible de charger la liste des pays."
+        );
+    }
+}
+
+
+// =====================================================
+// CHARGER LES UNIVERSITES DU PAYS SELECTIONNE
+// =====================================================
+
+async function chargerUniversites(pays) {
+
+    try {
+
+        // Désactiver pendant le chargement
+        universiteSelect.disabled = true;
+
+        universiteSelect.innerHTML =
+            '<option value="">Chargement des universités...</option>';
+
+        // Construire l'URL
+        const url =
+            API_UNIVERSITES + encodeURIComponent(pays);
+
+        // Appel de l'API
+        const response = await fetch(url);
+
+        // Vérifier la réponse
+        if (!response.ok) {
+
+            throw new Error(
+                "Impossible de récupérer les universités."
+            );
+        }
+
+        // Convertir en JSON
+        const universites = await response.json();
+
+        // Vider la liste
+        universiteSelect.innerHTML = "";
+
+        // Vérifier s'il y a des résultats
+        if (universites.length === 0) {
+
+            universiteSelect.innerHTML =
+                '<option value="">Aucune université trouvée</option>';
+
+            return;
+        }
+
+        // Option par défaut
+        const optionDefaut =
+            document.createElement("option");
+
+        optionDefaut.value = "";
+
+        optionDefaut.textContent =
+            "-- Sélectionnez une université --";
+
+        universiteSelect.appendChild(optionDefaut);
+
+
+        // =================================================
+        // AJOUTER LES UNIVERSITES
+        // =================================================
+
+        universites.forEach(function(universite) {
+
+            const option =
+                document.createElement("option");
+
+            option.value = universite.name;
+
+            option.textContent = universite.name;
+
+            universiteSelect.appendChild(option);
+
+        });
+
+        // Activer la liste
+        universiteSelect.disabled = false;
+
+    } catch (error) {
+
+        console.error(error);
+
+        universiteSelect.innerHTML =
+            '<option value="">Erreur de chargement</option>';
+
+        alert(
+            "Impossible de charger les universités de ce pays."
+        );
+    }
+}
+
+
+// =====================================================
+// EVENEMENT : CHANGEMENT DU PAYS
+// =====================================================
+
+paysSelect.addEventListener(
+    "change",
+    function() {
+
+        const paysSelectionne = this.value;
+
+        // Aucun pays
+        if (paysSelectionne === "") {
 
             universiteSelect.disabled = true;
 
             universiteSelect.innerHTML =
-                '<option value="">Sélectionnez d’abord un pays</option>';
+                '<option value="">-- Sélectionnez d\'abord un pays --</option>';
 
-        } else {
-
-            alert("Google Sheets a retourné : " + resultat);
+            return;
         }
 
-    } catch (error) {
+        // Charger les universités
+        chargerUniversites(paysSelectionne);
 
-        console.error("Erreur :", error);
-
-        alert(
-            "Impossible d'envoyer les données à Google Sheets."
-        );
-
-    } finally {
-
-        bouton.disabled = false;
-        bouton.textContent =
-            "Envoyer la candidature";
     }
+);
 
-});
+
+// =====================================================
+// ENVOI DU FORMULAIRE
+// =====================================================
+
+formulaire.addEventListener(
+    "submit",
+    function(event) {
+
+        // Empêcher le rechargement
+        event.preventDefault();
+
+        // Récupérer les informations
+        const nom =
+            document.getElementById("nom")
+                .value
+                .trim();
+
+        const prenom =
+            document.getElementById("prenom")
+                .value
+                .trim();
+
+        const pays =
+            paysSelect.value;
+
+        const universite =
+            universiteSelect.value;
+
+
+        // =================================================
+        // VERIFICATION
+        // =================================================
+
+        if (
+            nom === "" ||
+            prenom === "" ||
+            pays === "" ||
+            universite === ""
+        ) {
+
+            alert(
+                "Veuillez remplir tous les champs."
+            );
+
+            return;
+        }
+
+
+        // =================================================
+        // AFFICHER LA CONFIRMATION
+        // =================================================
+
+        message.textContent =
+            "Candidature envoyée avec succès ! " +
+            prenom + " " +
+            nom +
+            ", votre candidature pour " +
+            universite +
+            " (" +
+            pays +
+            ") a été enregistrée.";
+
+        message.classList.add("success");
+
+
+        // =================================================
+        // REINITIALISER LE FORMULAIRE
+        // =================================================
+
+        formulaire.reset();
+
+        universiteSelect.disabled = true;
+
+        universiteSelect.innerHTML =
+            '<option value="">-- Sélectionnez d\'abord un pays --</option>';
+
+
+        // =================================================
+        // CACHER LE MESSAGE
+        // =================================================
+
+        setTimeout(function() {
+
+            message.classList.remove("success");
+
+            message.textContent = "";
+
+        }, 5000);
+
+    }
+);
+
+
+// =====================================================
+// LANCER LE CHARGEMENT DES PAYS
+// =====================================================
+
+chargerPays();
