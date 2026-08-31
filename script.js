@@ -111,81 +111,43 @@ async function chargerPays() {
 // CHARGER LES UNIVERSITES DU PAYS SELECTIONNE
 // =====================================================
 
-async function chargerUniversites(pays) {
+async function chargerPays() {
 
     try {
 
-        universiteSelect.disabled = true;
-
-        universiteSelect.innerHTML =
-            '<option value="">Chargement...</option>';
-
-        const url =
-            API_UNIVERSITES +
-            encodeURIComponent(pays);
-
-        const response =
-            await fetch(url);
+        const response = await fetch(API_PAYS);
 
         if (!response.ok) {
-            throw new Error(
-                "Erreur HTTP : " + response.status
-            );
+            throw new Error("Erreur HTTP " + response.status);
         }
 
-        const universites =
-            await response.json();
+        const pays = await response.json();
 
-        universiteSelect.innerHTML = "";
+        paysSelect.innerHTML =
+            '<option value="">-- Sélectionnez un pays --</option>';
 
-        if (
-            !Array.isArray(universites) ||
-            universites.length === 0
-        ) {
+        pays
+            .sort((a, b) =>
+                a.name.localeCompare(b.name, "fr")
+            )
+            .forEach(pays => {
 
-            universiteSelect.innerHTML =
-                '<option value="">Aucune université trouvée</option>';
+                const option =
+                    document.createElement("option");
 
-            return;
-        }
+                option.value = pays.name;
+                option.textContent = pays.name;
 
-        const option =
-            document.createElement("option");
+                paysSelect.appendChild(option);
+            });
 
-        option.value = "";
-
-        option.textContent =
-            "-- Sélectionnez une université --";
-
-        universiteSelect.appendChild(option);
-
-        universites.forEach(function(universite) {
-
-            const option =
-                document.createElement("option");
-
-            option.value =
-                universite.name;
-
-            option.textContent =
-                universite.name;
-
-            universiteSelect.appendChild(
-                option
-            );
-
-        });
-
-        universiteSelect.disabled = false;
+        paysSelect.disabled = false;
 
     } catch (error) {
 
-        console.error(
-            "Erreur universités :",
-            error
-        );
+        console.error(error);
 
-        universiteSelect.innerHTML =
+        paysSelect.innerHTML =
             '<option value="">Erreur de chargement</option>';
     }
 }
