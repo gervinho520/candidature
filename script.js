@@ -7,16 +7,15 @@ const GOOGLE_SCRIPT_URL =
 
 
 // =====================================================
-// CONFIGURATION
+// URL DES FICHIERS JSON
 // =====================================================
 
-// Liste des pays
 const COUNTRIES_JSON_URL =
     "https://raw.githubusercontent.com/mledoze/countries/master/countries.json";
 
-// Liste des universités
 const UNIVERSITIES_JSON_URL =
     "https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json";
+
 
 // =====================================================
 // ELEMENTS HTML
@@ -36,53 +35,85 @@ const message =
 
 
 // =====================================================
-// VARIABLES GLOBALES
+// VARIABLES
 // =====================================================
 
-// Contiendra les pays
 let tousLesPays = [];
-
-// Contiendra toutes les universités
 let toutesLesUniversites = [];
 
 
 // =====================================================
-// CHARGER LES PAYS
+// CHARGER LES DONNEES
 // =====================================================
 
-async function chargerPays() {
+async function chargerDonnees() {
 
     try {
 
         paysSelect.disabled = true;
 
+        universiteSelect.disabled = true;
+
         paysSelect.innerHTML =
             '<option value="">Chargement des pays...</option>';
 
-
-        // Requête vers GitHub
-
-        const response =
-            await fetch(COUNTRIES_JSON_URL);
+        universiteSelect.innerHTML =
+            '<option value="">Chargement...</option>';
 
 
-        if (!response.ok) {
+        // Charger les deux fichiers en même temps
+
+        const [responsePays, responseUniversites] =
+            await Promise.all([
+
+                fetch(COUNTRIES_JSON_URL),
+
+                fetch(UNIVERSITIES_JSON_URL)
+
+            ]);
+
+
+        // Vérifier les pays
+
+        if (!responsePays.ok) {
 
             throw new Error(
-                "Erreur HTTP : " +
-                response.status
+                "Impossible de charger les pays. HTTP " +
+                responsePays.status
             );
 
         }
 
 
+        // Vérifier les universités
+
+        if (!responseUniversites.ok) {
+
+            throw new Error(
+                "Impossible de charger les universités. HTTP " +
+                responseUniversites.status
+            );
+
+        }
+
+
+        // Convertir en JSON
+
         tousLesPays =
-            await response.json();
+            await responsePays.json();
+
+        toutesLesUniversites =
+            await responseUniversites.json();
 
 
         console.log(
-            "Pays chargés :",
+            "Nombre de pays :",
             tousLesPays.length
+        );
+
+        console.log(
+            "Nombre d'universités :",
+            toutesLesUniversites.length
         );
 
 
@@ -90,90 +121,69 @@ async function chargerPays() {
         // TRIER LES PAYS
         // =================================================
 
-        tousLesPays.sort(
-            function(a, b) {
+        tousLesPays.sort(function(a, b) {
 
-                return a.name.common.localeCompare(
-                    b.name.common,
-                    "fr"
-                );
+            return a.name.common.localeCompare(
+                b.name.common,
+                "fr"
+            );
 
-            }
-        );
+        });
 
 
         // =================================================
-        // VIDER LE SELECT
+        // REMPLIR LE SELECT DES PAYS
         // =================================================
 
         paysSelect.innerHTML =
             '<option value="">-- Sélectionnez un pays --</option>';
 
 
-        // =================================================
-        // AJOUTER LES PAYS
-        // =================================================
+        tousLesPays.forEach(function(pays) {
 
-        tousLesPays.forEach(
-            function(pays) {
-
-                // Code ISO alpha-2
-                const codeISO =
-                    pays.cca2;
-
-
-                // Nom du pays
-                const nomPays =
-                    pays.name.common;
-
-
-                // Vérifier que les données existent
-
-                if (
-                    !codeISO ||
-                    !nomPays
-                ) {
-
-                    return;
-
-                }
-
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                // IMPORTANT :
-                // La valeur sera le code ISO
-
-                option.value =
-                    codeISO;
-
-
-                // Ce que l'utilisateur voit
-
-                option.textContent =
-                    nomPays;
-
-
-                paysSelect.appendChild(
-                    option
-                );
-
+            if (!pays.cca2) {
+                return;
             }
+
+
+            const option =
+                document.createElement("option");
+
+
+            // IMPORTANT :
+            // value = code ISO
+
+            option.value =
+                pays.cca2.toUpperCase();
+
+
+            // Texte affiché
+
+            option.textContent =
+                pays.name.common;
+
+
+            paysSelect.appendChild(option);
+
+        });
+
+
+        paysSelect.disabled = false;
+
+
+        universiteSelect.innerHTML =
+            '<option value="">-- Sélectionnez d\'abord un pays --</option>';
+
+
+        console.log(
+            "Données chargées correctement."
         );
-
-
-        paysSelect.disabled =
-            false;
 
 
     } catch (error) {
 
         console.error(
-            "Erreur chargement pays :",
+            "Erreur de chargement :",
             error
         );
 
@@ -182,8 +192,12 @@ async function chargerPays() {
             '<option value="">Erreur de chargement</option>';
 
 
+        universiteSelect.innerHTML =
+            '<option value="">Erreur de chargement</option>';
+
+
         alert(
-            "Impossible de charger la liste des pays."
+            "Impossible de charger les données. Vérifiez votre connexion Internet."
         );
 
     }
@@ -192,325 +206,89 @@ async function chargerPays() {
 
 
 // =====================================================
-// CHARGER TOUTES LES UNIVERSITES
-// =====================================================
-
-async function chargerToutesLesUniversites() {
-
-    try {
-
-        const response =
-            await fetch(
-                UNIVERSITIES_JSON_URL
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Erreur HTTP : " +
-                response.status
-            );
-
-        }
-
-
-        toutesLesUniversites =
-            await response.json();
-
-
-        console.log(
-            "Universités chargées :",
-            toutesLesUniversites.length
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Erreur chargement universités :",
-            error
-        );
-
-
-        throw error;
-
-    }
-
-}
-
-
-// =====================================================
-// CONVERTIR CODE ISO → NOM DU PAYS
-// =====================================================
-
-function obtenirNomPays(codeISO) {
-
-    const pays =
-        tousLesPays.find(
-            function(pays) {
-
-                return (
-                    pays.cca2 ===
-                    codeISO
-                );
-
-            }
-        );
-
-
-    if (pays) {
-
-        return pays.name.common;
-
-    }
-
-
-    return "";
-
-}
-
-
-// =====================================================
-// CHARGER LES UNIVERSITES D'UN PAYS
+// CHARGER LES UNIVERSITES DU PAYS
 // =====================================================
 
 function chargerUniversites(codeISO) {
 
+    console.log(
+        "Code ISO sélectionné :",
+        codeISO
+    );
+
+
+    universiteSelect.disabled = true;
+
+    universiteSelect.innerHTML =
+        '<option value="">Recherche des universités...</option>';
+
+
     try {
 
-        universiteSelect.disabled =
-            true;
-
-
-        universiteSelect.innerHTML =
-            '<option value="">Recherche des universités...</option>';
-
-
         // =================================================
-        // NOM DU PAYS
+        // FILTRER PAR CODE ISO
         // =================================================
 
-        const nomPays =
-            obtenirNomPays(codeISO);
-
-
-        if (nomPays === "") {
-
-            throw new Error(
-                "Pays introuvable."
-            );
-
-        }
-
-
-        console.log(
-            "Pays sélectionné :",
-            nomPays
-        );
-
-
-        console.log(
-            "Code ISO :",
-            codeISO
-        );
-
-
-        // =================================================
-        // RECHERCHE PAR CODE ISO
-        // =================================================
-
-        let universites =
+        const universites =
             toutesLesUniversites.filter(
                 function(universite) {
 
                     if (
-                        !universite.country
+                        !universite.alpha_two_code
                     ) {
 
                         return false;
 
                     }
-
-
-                    // Certains fichiers utilisent
-                    // le nom du pays.
-                    //
-                    // On compare donc le nom officiel
-                    // et le nom commun.
-
-                    const paysUniversite =
-                        universite.country
-                            .trim()
-                            .toLowerCase();
-
-
-                    const nomPaysMinuscule =
-                        nomPays
-                            .trim()
-                            .toLowerCase();
 
 
                     return (
-                        paysUniversite ===
-                        nomPaysMinuscule
+                        universite.alpha_two_code
+                            .toUpperCase() ===
+                        codeISO.toUpperCase()
                     );
 
                 }
             );
 
 
+        console.log(
+            "Universités trouvées pour",
+            codeISO,
+            ":",
+            universites.length
+        );
+
+
         // =================================================
-        // SI LE NOM NE CORRESPOND PAS
+        // VIDER LE SELECT
         // =================================================
-        // On essaie également avec les noms
-        // officiels et les traductions.
 
-        if (universites.length === 0) {
-
-            const paysObjet =
-                tousLesPays.find(
-                    function(pays) {
-
-                        return (
-                            pays.cca2 ===
-                            codeISO
-                        );
-
-                    }
-                );
+        universiteSelect.innerHTML =
+            '<option value="">-- Sélectionnez une université --</option>';
 
 
-            if (paysObjet) {
+        // =================================================
+        // AUCUNE UNIVERSITE
+        // =================================================
 
-                const nomsPossibles = [];
+        if (
+            universites.length === 0
+        ) {
 
-
-                // Nom commun
-
-                if (
-                    paysObjet.name &&
-                    paysObjet.name.common
-                ) {
-
-                    nomsPossibles.push(
-                        paysObjet.name.common
-                            .toLowerCase()
-                    );
-
-                }
+            universiteSelect.innerHTML =
+                '<option value="">Aucune université trouvée pour ce pays</option>';
 
 
-                // Nom officiel
-
-                if (
-                    paysObjet.name &&
-                    paysObjet.name.official
-                ) {
-
-                    nomsPossibles.push(
-                        paysObjet.name.official
-                            .toLowerCase()
-                    );
-
-                }
+            console.warn(
+                "Aucune université pour le code ISO :",
+                codeISO
+            );
 
 
-                // Noms alternatifs
-
-                if (
-                    paysObjet.altSpellings
-                ) {
-
-                    paysObjet.altSpellings.forEach(
-                        function(nom) {
-
-                            nomsPossibles.push(
-                                nom.toLowerCase()
-                            );
-
-                        }
-                    );
-
-                }
-
-
-                universites =
-                    toutesLesUniversites.filter(
-                        function(universite) {
-
-                            if (
-                                !universite.country
-                            ) {
-
-                                return false;
-
-                            }
-
-
-                            const paysUniversite =
-                                universite.country
-                                    .trim()
-                                    .toLowerCase();
-
-
-                            return nomsPossibles.includes(
-                                paysUniversite
-                            );
-
-                        }
-                    );
-
-            }
+            return;
 
         }
-
-
-        // =================================================
-        // SUPPRIMER LES DOUBLONS
-        // =================================================
-
-        const nomsUniversites =
-            new Set();
-
-
-        universites =
-            universites.filter(
-                function(universite) {
-
-                    if (
-                        !universite.name
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    const nom =
-                        universite.name.trim();
-
-
-                    if (
-                        nomsUniversites.has(
-                            nom.toLowerCase()
-                        )
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    nomsUniversites.add(
-                        nom.toLowerCase()
-                    );
-
-
-                    return true;
-
-                }
-            );
 
 
         // =================================================
@@ -530,39 +308,16 @@ function chargerUniversites(codeISO) {
 
 
         // =================================================
-        // AFFICHER LES RESULTATS
-        // =================================================
-
-        universiteSelect.innerHTML =
-            '<option value="">-- Sélectionnez une université --</option>';
-
-
-        if (
-            universites.length === 0
-        ) {
-
-            universiteSelect.innerHTML =
-                '<option value="">Aucune université trouvée</option>';
-
-
-            console.warn(
-                "Aucune université trouvée pour :",
-                nomPays,
-                codeISO
-            );
-
-
-            return;
-
-        }
-
-
-        // =================================================
         // AJOUTER LES UNIVERSITES
         // =================================================
 
         universites.forEach(
             function(universite) {
+
+                if (!universite.name) {
+                    return;
+                }
+
 
                 const option =
                     document.createElement(
@@ -578,8 +333,7 @@ function chargerUniversites(codeISO) {
                     universite.name;
 
 
-                // Stocker également le site web
-                // s'il existe
+                // Garder le site web si disponible
 
                 if (
                     universite.web_pages &&
@@ -600,20 +354,13 @@ function chargerUniversites(codeISO) {
         );
 
 
-        universiteSelect.disabled =
-            false;
-
-
-        console.log(
-            universites.length +
-            " université(s) trouvée(s)."
-        );
+        universiteSelect.disabled = false;
 
 
     } catch (error) {
 
         console.error(
-            "Erreur universités :",
+            "Erreur chargement universités :",
             error
         );
 
@@ -621,17 +368,13 @@ function chargerUniversites(codeISO) {
         universiteSelect.innerHTML =
             '<option value="">Erreur de chargement</option>';
 
-
-        universiteSelect.disabled =
-            true;
-
     }
 
 }
 
 
 // =====================================================
-// CHANGEMENT DU PAYS
+// EVENEMENT : CHANGEMENT DU PAYS
 // =====================================================
 
 paysSelect.addEventListener(
@@ -642,11 +385,13 @@ paysSelect.addEventListener(
             this.value;
 
 
-        // Aucun pays
+        console.log(
+            "Pays sélectionné :",
+            codeISO
+        );
 
-        if (
-            codeISO === ""
-        ) {
+
+        if (codeISO === "") {
 
             universiteSelect.disabled =
                 true;
@@ -661,8 +406,6 @@ paysSelect.addEventListener(
         }
 
 
-        // Charger les universités
-
         chargerUniversites(
             codeISO
         );
@@ -672,7 +415,7 @@ paysSelect.addEventListener(
 
 
 // =====================================================
-// ENVOI DE LA CANDIDATURE
+// ENVOYER LA CANDIDATURE
 // =====================================================
 
 formulaire.addEventListener(
@@ -681,10 +424,6 @@ formulaire.addEventListener(
 
         event.preventDefault();
 
-
-        // =================================================
-        // RECUPERER LES DONNEES
-        // =================================================
 
         const nom =
             document
@@ -708,14 +447,26 @@ formulaire.addEventListener(
             universiteSelect.value;
 
 
-        // =================================================
-        // NOM DU PAYS
-        // =================================================
+        // Trouver le pays à partir du code ISO
+
+        const paysObjet =
+            tousLesPays.find(
+                function(pays) {
+
+                    return (
+                        pays.cca2 &&
+                        pays.cca2.toUpperCase() ===
+                        codeISO.toUpperCase()
+                    );
+
+                }
+            );
+
 
         const pays =
-            obtenirNomPays(
-                codeISO
-            );
+            paysObjet
+                ? paysObjet.name.common
+                : "";
 
 
         // =================================================
@@ -749,16 +500,14 @@ formulaire.addEventListener(
             );
 
 
-        bouton.disabled =
-            true;
-
+        bouton.disabled = true;
 
         bouton.textContent =
             "Envoi en cours...";
 
 
         // =================================================
-        // DONNEES POUR GOOGLE SHEETS
+        // DONNEES
         // =================================================
 
         const donnees =
@@ -804,7 +553,7 @@ formulaire.addEventListener(
         try {
 
             // =================================================
-            // ENVOYER VERS GOOGLE APPS SCRIPT
+            // GOOGLE APPS SCRIPT
             // =================================================
 
             await fetch(
@@ -835,9 +584,7 @@ formulaire.addEventListener(
             );
 
 
-            // =================================================
-            // RESET
-            // =================================================
+            // Réinitialiser
 
             formulaire.reset();
 
@@ -853,13 +600,13 @@ formulaire.addEventListener(
         } catch (error) {
 
             console.error(
-                "Erreur d'envoi :",
+                "Erreur envoi :",
                 error
             );
 
 
             message.textContent =
-                "❌ Une erreur est survenue lors de l'envoi.";
+                "❌ Erreur lors de l'envoi.";
 
 
             message.classList.remove(
@@ -883,10 +630,6 @@ formulaire.addEventListener(
         }
 
 
-        // =================================================
-        // FAIRE DISPARAITRE LE MESSAGE
-        // =================================================
-
         setTimeout(
             function() {
 
@@ -907,42 +650,7 @@ formulaire.addEventListener(
 
 
 // =====================================================
-// INITIALISATION
+// DEMARRER
 // =====================================================
 
-async function initialiser() {
-
-    try {
-
-        // Charger les pays
-
-        await chargerPays();
-
-
-        // Charger les universités
-
-        await chargerToutesLesUniversites();
-
-
-        console.log(
-            "Application initialisée avec succès."
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Erreur d'initialisation :",
-            error
-        );
-
-    }
-
-}
-
-
-// =====================================================
-// LANCER L'APPLICATION
-// =====================================================
-
-initialiser();
+chargerDonnees();
