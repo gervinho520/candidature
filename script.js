@@ -1,17 +1,23 @@
-// ==========================================
-// LISTE DES PAYS ET UNIVERSITES
-// ==========================================
+// =====================================================
+// URL GOOGLE APPS SCRIPT
+// =====================================================
+
 const GOOGLE_SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbyhlj_Qy3BGT2JmudzyzJsZiWpYKVi8FTS5yksOGnJhgsiq7PH4CbKetB4_Jl5q-mQs/exec";
+
+
 // =====================================================
-// CONFIGURATION DES API
+// API DES PAYS
 // =====================================================
 
-// API pour récupérer les pays
 const API_PAYS =
-    "https://countries.dev/countries?fields=name"; //"https://countriesnow.space/api/v0.1/countries";
+    "https://countries.dev/countries?fields=name";
 
-// API pour rechercher les universités
+
+// =====================================================
+// API DES UNIVERSITES
+// =====================================================
+
 const API_UNIVERSITES =
     "https://universities.hipolabs.com/search?country=";
 
@@ -20,14 +26,21 @@ const API_UNIVERSITES =
 // RECUPERATION DES ELEMENTS HTML
 // =====================================================
 
-const paysSelect = document.getElementById("pays");
-const universiteSelect = document.getElementById("universite");
-const formulaire = document.getElementById("candidatureForm");
-const message = document.getElementById("message");
+const paysSelect =
+    document.getElementById("pays");
+
+const universiteSelect =
+    document.getElementById("universite");
+
+const formulaire =
+    document.getElementById("candidatureForm");
+
+const message =
+    document.getElementById("message");
 
 
 // =====================================================
-// CHARGER LES PAYS AUTOMATIQUEMENT
+// CHARGER LES PAYS
 // =====================================================
 
 async function chargerPays() {
@@ -39,56 +52,128 @@ async function chargerPays() {
         paysSelect.innerHTML =
             '<option value="">Chargement des pays...</option>';
 
-        const response = await fetch(
-            "https://countriesnow.space/api/v0.1/countries"
-        );
+
+        const response =
+            await fetch(API_PAYS);
+
 
         if (!response.ok) {
+
             throw new Error(
-                "Erreur HTTP : " + response.status
+                "Erreur HTTP : " +
+                response.status
             );
         }
 
-        const resultat = await response.json();
 
-        console.log("Réponse API :", resultat);
+        const resultat =
+            await response.json();
 
-        if (!resultat.data) {
+
+        console.log(
+            "Pays reçus :",
+            resultat
+        );
+
+
+        // =================================================
+        // VERIFIER LA STRUCTURE DES DONNEES
+        // =================================================
+
+        let pays = [];
+
+
+        // Si l'API renvoie directement un tableau
+        if (Array.isArray(resultat)) {
+
+            pays = resultat;
+
+        }
+
+        // Si l'API renvoie { data: [...] }
+        else if (
+            resultat.data &&
+            Array.isArray(resultat.data)
+        ) {
+
+            pays = resultat.data;
+
+        }
+
+        else {
+
             throw new Error(
-                "Aucun pays reçu"
+                "Format des données des pays inconnu."
             );
         }
 
-        // Trier les pays
-        resultat.data.sort(function(a, b) {
 
-            return a.country.localeCompare(
-                b.country,
+        // =================================================
+        // TRIER LES PAYS
+        // =================================================
+
+        pays.sort(function(a, b) {
+
+            const nomA =
+                typeof a === "string"
+                    ? a
+                    : a.name;
+
+            const nomB =
+                typeof b === "string"
+                    ? b
+                    : b.name;
+
+
+            return nomA.localeCompare(
+                nomB,
                 "fr"
             );
 
         });
 
-        // Réinitialiser
+
+        // =================================================
+        // OPTION PAR DEFAUT
+        // =================================================
+
         paysSelect.innerHTML =
             '<option value="">-- Sélectionnez un pays --</option>';
 
-        // Ajouter les pays
-        resultat.data.forEach(function(pays) {
+
+        // =================================================
+        // AJOUTER LES PAYS
+        // =================================================
+
+        pays.forEach(function(pays) {
 
             const option =
                 document.createElement("option");
 
-            option.value = pays.country;
+
+            const nomPays =
+                typeof pays === "string"
+                    ? pays
+                    : pays.name;
+
+
+            option.value =
+                nomPays;
+
 
             option.textContent =
-                pays.country;
+                nomPays;
 
-            paysSelect.appendChild(option);
+
+            paysSelect.appendChild(
+                option
+            );
 
         });
 
+
         paysSelect.disabled = false;
+
 
     } catch (error) {
 
@@ -97,114 +182,239 @@ async function chargerPays() {
             error
         );
 
+
         paysSelect.innerHTML =
             '<option value="">Erreur de chargement</option>';
 
+
         alert(
-            "Impossible de charger les pays."
+            "Impossible de charger la liste des pays."
         );
     }
 }
 
 
 // =====================================================
-// CHARGER LES UNIVERSITES DU PAYS SELECTIONNE
+// CHARGER LES UNIVERSITES
 // =====================================================
 
-async function chargerPays() {
+async function chargerUniversites(
+    pays
+) {
 
     try {
 
-        const response = await fetch(API_PAYS);
+        universiteSelect.disabled =
+            true;
+
+
+        universiteSelect.innerHTML =
+            '<option value="">Chargement des universités...</option>';
+
+
+        const url =
+            API_UNIVERSITES +
+            encodeURIComponent(pays);
+
+
+        console.log(
+            "URL universités :",
+            url
+        );
+
+
+        const response =
+            await fetch(url);
+
 
         if (!response.ok) {
-            throw new Error("Erreur HTTP " + response.status);
+
+            throw new Error(
+                "Erreur HTTP : " +
+                response.status
+            );
         }
 
-        const pays = await response.json();
 
-        paysSelect.innerHTML =
-            '<option value="">-- Sélectionnez un pays --</option>';
+        const universites =
+            await response.json();
 
-        pays
-            .sort((a, b) =>
-                a.name.localeCompare(b.name, "fr")
-            )
-            .forEach(pays => {
+
+        console.log(
+            "Universités reçues :",
+            universites
+        );
+
+
+        // =================================================
+        // VIDER LA LISTE
+        // =================================================
+
+        universiteSelect.innerHTML =
+            "";
+
+
+        // =================================================
+        // AUCUNE UNIVERSITE
+        // =================================================
+
+        if (
+            !Array.isArray(universites) ||
+            universites.length === 0
+        ) {
+
+            universiteSelect.innerHTML =
+                '<option value="">Aucune université trouvée</option>';
+
+            return;
+        }
+
+
+        // =================================================
+        // OPTION PAR DEFAUT
+        // =================================================
+
+        const optionDefaut =
+            document.createElement("option");
+
+
+        optionDefaut.value = "";
+
+
+        optionDefaut.textContent =
+            "-- Sélectionnez une université --";
+
+
+        universiteSelect.appendChild(
+            optionDefaut
+        );
+
+
+        // =================================================
+        // AJOUTER LES UNIVERSITES
+        // =================================================
+
+        universites.forEach(
+            function(universite) {
+
+                if (!universite.name) {
+                    return;
+                }
+
 
                 const option =
-                    document.createElement("option");
+                    document.createElement(
+                        "option"
+                    );
 
-                option.value = pays.name;
-                option.textContent = pays.name;
 
-                paysSelect.appendChild(option);
-            });
+                option.value =
+                    universite.name;
 
-        paysSelect.disabled = false;
+
+                option.textContent =
+                    universite.name;
+
+
+                universiteSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+        universiteSelect.disabled =
+            false;
+
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Erreur chargement universités :",
+            error
+        );
 
-        paysSelect.innerHTML =
+
+        universiteSelect.innerHTML =
             '<option value="">Erreur de chargement</option>';
+
+
+        alert(
+            "Impossible de charger les universités."
+        );
     }
 }
 
 
 // =====================================================
-// EVENEMENT : CHANGEMENT DU PAYS
+// QUAND LE PAYS CHANGE
 // =====================================================
 
 paysSelect.addEventListener(
     "change",
     function() {
 
-        const paysSelectionne = this.value;
+        const pays =
+            this.value;
+
 
         // Aucun pays
-        if (paysSelectionne === "") {
+        if (pays === "") {
 
-            universiteSelect.disabled = true;
+            universiteSelect.disabled =
+                true;
+
 
             universiteSelect.innerHTML =
                 '<option value="">-- Sélectionnez d\'abord un pays --</option>';
 
+
             return;
         }
 
+
         // Charger les universités
-        chargerUniversites(paysSelectionne);
+        chargerUniversites(
+            pays
+        );
 
     }
 );
 
 
 // =====================================================
-// ENVOI DU FORMULAIRE
+// ENVOYER LA CANDIDATURE
 // =====================================================
 
 formulaire.addEventListener(
     "submit",
-    function(event) {
+    async function(event) {
 
-        // Empêcher le rechargement
         event.preventDefault();
 
-        // Récupérer les informations
+
+        // =================================================
+        // RECUPERER LES DONNEES
+        // =================================================
+
         const nom =
-            document.getElementById("nom")
+            document
+                .getElementById("nom")
                 .value
                 .trim();
 
+
         const prenom =
-            document.getElementById("prenom")
+            document
+                .getElementById("prenom")
                 .value
                 .trim();
+
 
         const pays =
             paysSelect.value;
+
 
         const universite =
             universiteSelect.value;
@@ -230,52 +440,146 @@ formulaire.addEventListener(
 
 
         // =================================================
-        // AFFICHER LA CONFIRMATION
+        // BOUTON
         // =================================================
 
-        message.textContent =
-            "Candidature envoyée avec succès ! " +
-            prenom + " " +
-            nom +
-            ", votre candidature pour " +
-            universite +
-            " (" +
-            pays +
-            ") a été enregistrée.";
-
-        message.classList.add("success");
+        const bouton =
+            formulaire.querySelector(
+                "button"
+            );
 
 
-        // =================================================
-        // REINITIALISER LE FORMULAIRE
-        // =================================================
+        bouton.disabled =
+            true;
 
-        formulaire.reset();
 
-        universiteSelect.disabled = true;
-
-        universiteSelect.innerHTML =
-            '<option value="">-- Sélectionnez d\'abord un pays --</option>';
+        bouton.textContent =
+            "Envoi en cours...";
 
 
         // =================================================
-        // CACHER LE MESSAGE
+        // PREPARER LES DONNEES
         // =================================================
 
-        setTimeout(function() {
+        const donnees =
+            new URLSearchParams();
 
-            message.classList.remove("success");
 
-            message.textContent = "";
+        donnees.append(
+            "action",
+            "candidature"
+        );
 
-        }, 5000);
+
+        donnees.append(
+            "nom",
+            nom
+        );
+
+
+        donnees.append(
+            "prenom",
+            prenom
+        );
+
+
+        donnees.append(
+            "pays",
+            pays
+        );
+
+
+        donnees.append(
+            "universite",
+            universite
+        );
+
+
+        try {
+
+            // =================================================
+            // ENVOYER VERS GOOGLE APPS SCRIPT
+            // =================================================
+
+            await fetch(
+                GOOGLE_SCRIPT_URL,
+                {
+                    method: "POST",
+                    body: donnees
+                }
+            );
+
+
+            // =================================================
+            // MESSAGE DE SUCCES
+            // =================================================
+
+            message.textContent =
+                "✅ Candidature envoyée avec succès !";
+
+
+            message.classList.remove(
+                "error"
+            );
+
+
+            message.classList.add(
+                "success"
+            );
+
+
+            // =================================================
+            // REINITIALISER
+            // =================================================
+
+            formulaire.reset();
+
+
+            universiteSelect.disabled =
+                true;
+
+
+            universiteSelect.innerHTML =
+                '<option value="">-- Sélectionnez d\'abord un pays --</option>';
+
+
+        } catch (error) {
+
+            console.error(
+                "Erreur envoi candidature :",
+                error
+            );
+
+
+            message.textContent =
+                "❌ Erreur lors de l'envoi de la candidature.";
+
+
+            message.classList.remove(
+                "success"
+            );
+
+
+            message.classList.add(
+                "error"
+            );
+
+        } finally {
+
+            bouton.disabled =
+                false;
+
+
+            bouton.textContent =
+                "Envoyer la candidature";
+        }
 
     }
 );
 
 
 // =====================================================
-// LANCER LE CHARGEMENT DES PAYS
+// DEMARRER LE CHARGEMENT DES PAYS
 // =====================================================
 
 chargerPays();
