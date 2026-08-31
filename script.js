@@ -9,7 +9,7 @@ const GOOGLE_SCRIPT_URL =
 
 // API pour récupérer les pays
 const API_PAYS =
-    "https://restcountries.com/v3.1/all?fields=name,cca2";
+    "https://countriesnow.space/api/v0.1/countries";
 
 // API pour rechercher les universités
 const API_UNIVERSITES =
@@ -34,64 +34,74 @@ async function chargerPays() {
 
     try {
 
-        // Afficher un message pendant le chargement
+        paysSelect.disabled = true;
+
         paysSelect.innerHTML =
             '<option value="">Chargement des pays...</option>';
 
-        paysSelect.disabled = true;
+        const response = await fetch(
+            "https://countriesnow.space/api/v0.1/countries"
+        );
 
-        // Appel de l'API
-        const response = await fetch(API_PAYS);
-
-        // Vérifier la réponse
         if (!response.ok) {
-            throw new Error("Impossible de récupérer les pays.");
+            throw new Error(
+                "Erreur HTTP : " + response.status
+            );
         }
 
-        // Transformer la réponse en JSON
-        const pays = await response.json();
+        const resultat = await response.json();
 
-        // Trier les pays par ordre alphabétique
-        pays.sort(function(a, b) {
+        console.log("Réponse API :", resultat);
 
-            return a.name.common.localeCompare(
-                b.name.common,
+        if (!resultat.data) {
+            throw new Error(
+                "Aucun pays reçu"
+            );
+        }
+
+        // Trier les pays
+        resultat.data.sort(function(a, b) {
+
+            return a.country.localeCompare(
+                b.country,
                 "fr"
             );
 
         });
 
-        // Vider la liste
+        // Réinitialiser
         paysSelect.innerHTML =
             '<option value="">-- Sélectionnez un pays --</option>';
 
         // Ajouter les pays
-        pays.forEach(function(pays) {
+        resultat.data.forEach(function(pays) {
 
-            const option = document.createElement("option");
+            const option =
+                document.createElement("option");
 
-            // Nom affiché
-            option.textContent = pays.name.common;
+            option.value = pays.country;
 
-            // Valeur envoyée à l'API universités
-            option.value = pays.name.common;
+            option.textContent =
+                pays.country;
 
             paysSelect.appendChild(option);
 
         });
 
-        // Réactiver la liste
         paysSelect.disabled = false;
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Erreur chargement des pays :",
+            error
+        );
 
         paysSelect.innerHTML =
-            '<option value="">Erreur de chargement des pays</option>';
+            '<option value="">Erreur de chargement</option>';
 
         alert(
-            "Impossible de charger la liste des pays."
+            "Impossible de charger les pays."
         );
     }
 }
@@ -105,35 +115,33 @@ async function chargerUniversites(pays) {
 
     try {
 
-        // Désactiver pendant le chargement
         universiteSelect.disabled = true;
 
         universiteSelect.innerHTML =
-            '<option value="">Chargement des universités...</option>';
+            '<option value="">Chargement...</option>';
 
-        // Construire l'URL
         const url =
-            API_UNIVERSITES + encodeURIComponent(pays);
+            API_UNIVERSITES +
+            encodeURIComponent(pays);
 
-        // Appel de l'API
-        const response = await fetch(url);
+        const response =
+            await fetch(url);
 
-        // Vérifier la réponse
         if (!response.ok) {
-
             throw new Error(
-                "Impossible de récupérer les universités."
+                "Erreur HTTP : " + response.status
             );
         }
 
-        // Convertir en JSON
-        const universites = await response.json();
+        const universites =
+            await response.json();
 
-        // Vider la liste
         universiteSelect.innerHTML = "";
 
-        // Vérifier s'il y a des résultats
-        if (universites.length === 0) {
+        if (
+            !Array.isArray(universites) ||
+            universites.length === 0
+        ) {
 
             universiteSelect.innerHTML =
                 '<option value="">Aucune université trouvée</option>';
@@ -141,48 +149,44 @@ async function chargerUniversites(pays) {
             return;
         }
 
-        // Option par défaut
-        const optionDefaut =
+        const option =
             document.createElement("option");
 
-        optionDefaut.value = "";
+        option.value = "";
 
-        optionDefaut.textContent =
+        option.textContent =
             "-- Sélectionnez une université --";
 
-        universiteSelect.appendChild(optionDefaut);
-
-
-        // =================================================
-        // AJOUTER LES UNIVERSITES
-        // =================================================
+        universiteSelect.appendChild(option);
 
         universites.forEach(function(universite) {
 
             const option =
                 document.createElement("option");
 
-            option.value = universite.name;
+            option.value =
+                universite.name;
 
-            option.textContent = universite.name;
+            option.textContent =
+                universite.name;
 
-            universiteSelect.appendChild(option);
+            universiteSelect.appendChild(
+                option
+            );
 
         });
 
-        // Activer la liste
         universiteSelect.disabled = false;
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Erreur universités :",
+            error
+        );
 
         universiteSelect.innerHTML =
             '<option value="">Erreur de chargement</option>';
-
-        alert(
-            "Impossible de charger les universités de ce pays."
-        );
     }
 }
 
